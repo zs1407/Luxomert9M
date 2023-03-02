@@ -3,43 +3,47 @@
 #include <stdio.h>
 #include <string.h>
 #include <Wire.h>
+
+// Пины для работы кнопок.
 #define BTN_1 6
 #define BTN_2 8
 #define BTN_3 9
 #define BTN_4 10
-#define LUX A5
+
+// Индикатор низкого освещения. 
 #define WARNING_LED 7
+
+// Адресс датчика освещения.
 #define BH1750_ADDRESS 0x23
+
+// Режим работы датчика освещения.
 #define ONE_TIME_HIGH_RES_MODE 0x20
-#define LCD_CLEARDISPLAY 0x01
-#define LCD_RETURNHOME 0x02
+
+// Адреса комманд LCD-дисплея.
 #define LCD_ENTRYMODESET 0x04
+#define LCD_CLEARDISPLAY 0x01
 #define LCD_DISPLAYCONTROL 0x08
-#define LCD_CURSORSHIFT 0x10
-#define LCD_FUNCTIONSET 0x20
+#define LCD_FUNCTIONSET 0x20 
 #define LCD_SETCGRAMADDR 0x40
-#define LCD_SETDDRAMADDR 0x80
+#define LCD_SETDDRAMADDR 0x80 
 #define LCD_ENTRYRIGHT 0x00
-#define LCD_ENTRYLEFT 0x02
+#define LCD_ENTRYLEFT 0x02 
 #define LCD_ENTRYSHIFTINCREMENT 0x01
-#define LCD_ENTRYSHIFTDECREMENT 0x00
-#define LCD_DISPLAYON 0x04
+#define LCD_ENTRYSHIFTDECREMENT 0x00 
+#define LCD_DISPLAYON 0x04 
 #define LCD_DISPLAYOFF 0x00
 #define LCD_CURSORON 0x02
-#define LCD_CURSOROFF 0x00
+#define LCD_CURSOROFF 0x00 
 #define LCD_BLINKON 0x01
-#define LCD_BLINKOFF 0x00
-#define LCD_DISPLAYMOVE 0x08
-#define LCD_CURSORMOVE 0x00
-#define LCD_MOVERIGHT 0x04
-#define LCD_MOVELEFT 0x00
-#define LCD_8BITMODE 0x10
-#define LCD_4BITMODE 0x00
-#define LCD_2LINE 0x08
-#define LCD_1LINE 0x00
-#define LCD_5x10DOTS 0x04
-#define LCD_5x8DOTS 0x00
+#define LCD_BLINKOFF 0x00 
+#define LCD_8BITMODE 0x10 
+#define LCD_4BITMODE 0x00 
+#define LCD_2LINE 0x08 
+#define LCD_1LINE 0x00 
+#define LCD_5x10DOTS 0x04 
+#define LCD_5x8DOTS 0x00 
 
+// Класс LCD-Дисплея.
 class LCD_lib : public Print 
 {
 public:
@@ -219,6 +223,7 @@ private:
     uint8_t _row_offsets[4];
 };
 
+// Класс датчика освещения.
 class BH1750_lib 
 {
 public:
@@ -249,11 +254,15 @@ public:
  
 private:
   const int mode = 0x10;
+	
+  // Константа для расчета значения.
   const float meaurmentConst = 1.2;
   int address;
   byte buff[2];
 
 };
+
+// Класс кнопки (Предназначен для расчёта количества нажатий).
 class click
 {
  public:
@@ -285,6 +294,8 @@ void clickerCounter()
  bool thisState;
  int _pin;
 };
+
+// Функция для определения типа комнаты.
 char getRoom(int type)
 {
  char c;
@@ -306,6 +317,8 @@ char getRoom(int type)
  }
  return c;
 }
+
+// Функция для установки задержки.
 int measurementDelay(int thisDelay)
 {
  int del;
@@ -318,6 +331,8 @@ int measurementDelay(int thisDelay)
  }
  return del;
 }
+
+// Функция для оповещения о низком уровне освещения.
 void lowLightnessWarning(int pin, char room, int res)
 {
  int limit = 300;
@@ -343,15 +358,13 @@ void lowLightnessWarning(int pin, char room, int res)
  if (res < limit)
 {
  digitalWrite(pin, HIGH);
-
 }
  else
-
 {
  digitalWrite(pin, LOW);
+}
+}
 
-}
-}
 BH1750_lib lightMeter(BH1750_ADDRESS);
 LCD_lib lcd_1(12, 11,
 		 0, 0, 0, 0,
@@ -386,6 +399,7 @@ void loop()
  byte del = measurementDelay(thisMode);
  lcd_1.setCursor(0, 0);
  lcd_1.print("LUX: ");
+ // Выводится уровень освещённости в зависимости от текущей задержки.
  if(millis() - timer > del * 1000 || nowMeasure.getCount() > numberOfClicks){
  lcd_1.setCursor(5, 0);
  lcd_1.print(" ");
